@@ -13,7 +13,7 @@ class NetworkScanner extends NetScan {
      * @param string $new_system_os
      */
     public function set_detectable_os($new_system_os){
-        if(!in_array($new_system_os, [self::OS_WINDOWS, self::OS_LINUX])){
+        if(!in_array($new_system_os, array(self::OS_WINDOWS, self::OS_LINUX))){
             throw new \InvalidArgumentException("unapproved OS provided");
         }
         $this->system_os = $new_system_os;
@@ -31,7 +31,7 @@ class NetworkScanner extends NetScan {
      * @param string $physical_address
      */
     public function add_physical_address_to_response($ip_address, $physical_address){
-        $this->response_component[] = ['ip'=>$ip_address, 'mac'=>$physical_address];
+        $this->response_component[] = array('ip'=>$ip_address, 'mac'=>$physical_address);
     }
 
     /**
