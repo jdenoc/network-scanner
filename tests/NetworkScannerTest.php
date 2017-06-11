@@ -2,10 +2,11 @@
 
 namespace jdenoc\NetworkScanner\Tests;
 
+use PHPUnit_Framework_TestCase as PhpUnitTestCase;
 use Faker;
 use jdenoc\NetworkScanner\Tests\NetworkScanner as TNS;
 
-class NetworkScannerTest extends \PHPUnit_Framework_TestCase {
+class NetworkScannerTest extends PhpUnitTestCase {
 
     /**
      * @var Faker\Generator
