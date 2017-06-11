@@ -6,8 +6,7 @@
         "name": "jdenoc",
         "email": "jdenoc@gmail.com"
     }],
-    "require": {
-    },
+    "require": {},
     "require-dev": {
         "phpunit/phpunit": "^4.8",
         "fzaninotto/faker": "^1.6"
