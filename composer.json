@@ -1,0 +1,25 @@
+{
+    "name": "jdenoc/network-scanner",
+    "description": "Utility to scan a network for a physical (MAC) address",
+    "type": "library",
+    "authors": [{
+        "name": "jdenoc",
+        "email": "jdenoc@gmail.com"
+    }],
+    "require": {
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8",
+        "fzaninotto/faker": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "jdenoc\\NetworkScanner\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "jdenoc\\NetworkScanner\\Tests\\": "tests"
+        }
+    }
+}
