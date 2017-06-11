@@ -45,9 +45,9 @@ class NetworkScanner {
             //192.168.5.1              ether   01:12:3b:44:53:d6   C                     eth0
 
             if(
-                strpos($network_output_line, strtolower($this->normalise_physical_address($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_COLON))) !== false
-                || strpos($network_output_line, strtolower($this->normalise_physical_address($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_DASH))) !== false
-                || strpos($network_output_line, strtolower($this->normalise_physical_address($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_NA))) !== false
+                stripos($network_output_line, $this->normalise_physical_address($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_COLON)) !== false
+                || stripos($network_output_line, $this->normalise_physical_address($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_DASH)) !== false
+                || stripos($network_output_line, $this->normalise_physical_address($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_NA)) !== false
             ){
                 // extract IP address from line
                 $ip_address_match = array();
@@ -112,15 +112,9 @@ class NetworkScanner {
             return '';
         }
 
-        if(strpos($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_COLON) > 0){
-            $current_separator = self::PHYSICAL_ADDRESS_SEPARATOR_COLON;
-        } elseif(strpos($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_DASH) > 0){
-            $current_separator = self::PHYSICAL_ADDRESS_SEPARATOR_DASH;
-        } else {
-            $current_separator = self::PHYSICAL_ADDRESS_SEPARATOR_NA;
-        }
-
-        return str_replace($current_separator, $new_separator, $physical_address);
+        $physical_address = preg_replace("/[^A-Fa-f0-9 ]/", '', $physical_address);
+        $split_physical_address = str_split($physical_address, 2);
+        return implode($new_separator, $split_physical_address);
     }
 
     /**
