@@ -14,12 +14,11 @@
     },
     "autoload": {
         "psr-4": {
-            "jdenoc\\NetworkScanner\\": "src"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
+            "jdenoc\\NetworkScanner\\": "src",
             "jdenoc\\NetworkScanner\\Tests\\": "tests"
         }
+    },
+    "archive": {
+        "exclude": [".git*", "phpunit.xml", ".travis.yml", "*.md", "*Test.php"]
     }
 }
