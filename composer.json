@@ -6,20 +6,18 @@
         "name": "jdenoc",
         "email": "jdenoc@gmail.com"
     }],
-    "require": {
-    },
+    "require": {},
     "require-dev": {
         "phpunit/phpunit": "^4.8",
         "fzaninotto/faker": "^1.6"
     },
     "autoload": {
         "psr-4": {
-            "jdenoc\\NetworkScanner\\": "src"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
+            "jdenoc\\NetworkScanner\\": "src",
             "jdenoc\\NetworkScanner\\Tests\\": "tests"
         }
+    },
+    "archive": {
+        "exclude": [".git*", "phpunit.xml", ".travis.yml", "*.md", "*Test.php"]
     }
 }

@@ -9,6 +9,14 @@ class NetworkScanner extends NetScan {
     private $arp_failure = false;
     private $response_component = array();
 
+    public function __construct(){
+        parent::__construct();
+
+        $this->add_mac_address_to_response('192.168.1.2', '01-23-45-67-89-ab');
+        $this->add_mac_address_to_response('192.168.1.3', 'CD:EF:01:23:45:67');
+        $this->add_mac_address_to_response('192.168.1.4', '89abcdef0123');
+    }
+
     /**
      * @param string $new_system_os
      */
@@ -56,19 +64,18 @@ class NetworkScanner extends NetScan {
         if($this->arp_failure){
             $arp_output = $this->get_empty_arp_output();
         }
-        return explode("\n", $arp_output);
+        return explode(PHP_EOL, $arp_output);
     }
 
     /**
      * @return string
      */
     private function get_example_windows_arp_output(){
-        $arp_output = '';
-        $arp_output .= 'Internet Address      Physical Address      Type';
-        $arp_output .= '192.168.5.1           01-12-3b-44-53-d6     dynamic';
-        $arp_output .= '192.168.5.3           a0-4b-c2-de-93-23     dynamic';
+        $arp_output = 'Internet Address      Physical Address      Type'.PHP_EOL;
         foreach($this->response_component as $response_component){
-            $arp_output .= $response_component['ip'].'           '.$response_component['mac'].'    dynamic';
+            $arp_output .= $response_component['ip'].'           ';
+            $arp_output .= strtolower($this->normalise_mac_address($response_component['mac'], self::PHYSICAL_ADDRESS_SEPARATOR_DASH));
+            $arp_output .= '    dynamic'.PHP_EOL;
         }
         return $arp_output;
     }
@@ -77,12 +84,11 @@ class NetworkScanner extends NetScan {
      * @return string
      */
     private function get_example_unix_arp_output(){
-        $arp_output = '';
-        $arp_output .= 'Address                  HWtype  HWaddress           Flags Mask            Iface';
-        $arp_output .= '192.168.5.3              ether   a0:4b:c2:de:93:23   C                     eth0';
-        $arp_output .= '192.168.5.1              ether   01:12:3b:44:53:d6   C                     eth0';
+        $arp_output = 'Address                  HWtype  HWaddress           Flags Mask            Iface'.PHP_EOL;
         foreach($this->response_component as $response_component){
-            $arp_output .= $response_component['ip'].'              ether   '.$response_component['mac'].'   C                     eth0';
+            $arp_output .= $response_component['ip'].'              ether   ';
+            $arp_output .= strtolower($this->normalise_mac_address($response_component['mac'], self::PHYSICAL_ADDRESS_SEPARATOR_COLON));
+            $arp_output .= '   C                     eth0'.PHP_EOL;
         }
         return $arp_output;
     }
