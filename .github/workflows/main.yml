@@ -42,7 +42,7 @@ jobs:
           php_version: ${{ matrix.php }}
 
       - name: static analysis
-        uses: php-actions/phpstav@v3
+        uses: php-actions/phpstan@v3
         with:
           php_version: ${{ matrix.php }}
           path: src
