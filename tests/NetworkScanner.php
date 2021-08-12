@@ -12,16 +12,16 @@ class NetworkScanner extends NetScan {
     public function __construct(){
         parent::__construct();
 
-        $this->add_mac_address_to_response('192.168.1.2', '01-23-45-67-89-ab');
-        $this->add_mac_address_to_response('192.168.1.3', 'CD:EF:01:23:45:67');
-        $this->add_mac_address_to_response('192.168.1.4', '89abcdef0123');
+        $this->add_mac_address_to_response('172.16.0.2', '01-23-45-67-89-ab');
+        $this->add_mac_address_to_response('172.16.0.3', 'CD:EF:01:23:45:67');
+        $this->add_mac_address_to_response('172.16.0.4', '89abcdef0123');
     }
 
     /**
      * @param string $new_system_os
      */
     public function set_detectable_os($new_system_os){
-        if(!in_array($new_system_os, array(self::OS_WINDOWS, self::OS_LINUX))){
+        if(!in_array($new_system_os, array(self::OS_WINDOWS, self::OS_UNIX, self::OS_BSD))){
             throw new \InvalidArgumentException("unapproved OS provided");
         }
         $this->system_os = $new_system_os;
@@ -55,10 +55,16 @@ class NetworkScanner extends NetScan {
      * @return array
      */
     protected function arp_local_network(){
-        if($this->detect_os() == self::OS_WINDOWS){
-            $arp_output = $this->get_example_windows_arp_output();
-        } else {
-            $arp_output = $this->get_example_unix_arp_output();
+        switch($this->detect_os()){
+            case self::OS_WINDOWS:
+                $arp_output = $this->get_example_windows_arp_output();
+                break;
+            case self::OS_BSD:
+                $arp_output = $this->get_example_bsd_arp_output();
+                break;
+            case self::OS_UNIX:
+            default:
+                $arp_output = $this->get_example_unix_arp_output();
         }
 
         if($this->arp_failure){
@@ -89,6 +95,19 @@ class NetworkScanner extends NetScan {
             $arp_output .= $response_component['ip'].'              ether   ';
             $arp_output .= strtolower($this->normalise_mac_address($response_component['mac'], self::PHYSICAL_ADDRESS_SEPARATOR_COLON));
             $arp_output .= '   C                     eth0'.PHP_EOL;
+        }
+        return $arp_output;
+    }
+
+    /**
+     * @return string
+     */
+    private function get_example_bsd_arp_output(){
+        $arp_output = '';
+        foreach($this->response_component as $response_component){
+            $arp_output .= '? ('.$response_component['ip'].' at ';
+            $arp_output .= strtolower($this->normalise_physical_address($response_component['mac'], self::PHYSICAL_ADDRESS_SEPARATOR_COLON));
+            $arp_output .= ' on epair0b permanent [ethernet]'.PHP_EOL;
         }
         return $arp_output;
     }

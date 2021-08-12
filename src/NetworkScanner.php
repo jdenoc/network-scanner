@@ -5,13 +5,18 @@ namespace jdenoc\NetworkScanner;
 class NetworkScanner {
 
     const OS_WINDOWS = 'windows';
-    const OS_LINUX = 'linux';
+    const OS_UNIX = 'unix';
+    const OS_BSD = 'bsd';
     const PHYSICAL_ADDRESS_SEPARATOR_DASH = '-';
     const PHYSICAL_ADDRESS_SEPARATOR_COLON = ':';
     const PHYSICAL_ADDRESS_SEPARATOR_NA = '';
     const ARP_CMD_WINDOWS = 'arp -a';
     const ARP_CMD_UNIX = 'arp -n';
+    const ARP_CMD_BSD = 'arp -a';
 
+    /**
+     * @var string
+     */
     protected $system_os;
 
     public function __construct(){
@@ -36,13 +41,17 @@ class NetworkScanner {
         foreach($network_output as $network_output_line){
             //Example Windows arp output:
             //  Internet Address      Physical Address      Type
-            //  192.168.5.1           01-12-3b-44-53-d6     dynamic
-            //  192.168.5.3           a0-4b-c2-de-93-23     dynamic
+            //  172.16.0.1           01-12-3b-44-53-d6     dynamic
+            //  172.16.0.3           a0-4b-c2-de-93-23     dynamic
 
             //Example unix arp output:
             //Address                  HWtype  HWaddress           Flags Mask            Iface
-            //192.168.5.3              ether   a0:4b:c2:de:93:23   C                     eth0
-            //192.168.5.1              ether   01:12:3b:44:53:d6   C                     eth0
+            //172.16.0.3              ether   a0:4b:c2:de:93:23   C                     eth0
+            //172.16.0.1              ether   01:12:3b:44:53:d6   C                     eth0
+
+            //Example BSD apr output:
+            //? (172.16.0.1) at 01:12:3b:44:53:d6 on epair0b expires in 662 seconds [ethernet]
+            //? (172.16.0.3) at a0:4b:c2:de:93:23 on epair0b permanent [ethernet]
 
             if(
                 stripos($network_output_line, $this->normalise_physical_address($physical_address, self::PHYSICAL_ADDRESS_SEPARATOR_COLON)) !== false
@@ -131,12 +140,19 @@ class NetworkScanner {
      * @return array
      */
     protected function arp_local_network(){
-        $arp_output = array();
-        if($this->detect_os() == self::OS_WINDOWS){
-            $arp_cmd = self::ARP_CMD_WINDOWS;
-        } else {
-            $arp_cmd = self::ARP_CMD_UNIX;
+        switch($this->detect_os()){
+            case self::OS_WINDOWS:
+                $arp_cmd = self::ARP_CMD_WINDOWS;
+                break;
+            case self::OS_BSD:
+                $arp_cmd = self::ARP_CMD_BSD;
+                break;
+            case self::OS_UNIX:
+            default:
+                $arp_cmd = self::ARP_CMD_UNIX;
         }
+
+        $arp_output = array();
         exec($arp_cmd, $arp_output);
         return $arp_output;
     }
@@ -145,10 +161,13 @@ class NetworkScanner {
      * @return string
      */
     protected function detect_os(){
-        if (strtoupper(substr($this->system_os, 0, 3)) === 'WIN') {
+        if (stripos($this->system_os, 'WIN') !== false) {
             return self::OS_WINDOWS;
+        }elseif(stripos($this->system_os, 'BSD') !== false) {
+            return self::OS_BSD;
         } else {
-            return self::OS_LINUX;
+            // assume we're on a unix based system
+            return self::OS_UNIX;
         }
     }
 

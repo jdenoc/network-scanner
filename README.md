@@ -4,7 +4,7 @@ Library that allows you to scan a local network using `arp` and finds an IP addr
 
 ## Installation
 Install the latest version with
-```
+```bash
 composer require jdenoc/network-scanner
 ```
 
@@ -17,4 +17,9 @@ use jdenoc\NetworkScanner\NetworkScanner;
 $mac_address = "A1:B2:C3:D4:E5:F6";
 $scanner = new NetworkScanner();
 $scanner->is_physical_address_on_network($mac_address);
+```
+
+# Run tests
+```bash
+vendor/bin/phpunit --stop-on-failure
 ```
