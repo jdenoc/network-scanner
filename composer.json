@@ -2,6 +2,7 @@
     "name": "jdenoc/network-scanner",
     "description": "Utility to scan a network for a physical (MAC) address",
     "type": "library",
+    "license": "MIT",
     "authors": [{
         "name": "jdenoc",
         "email": "jdenoc@gmail.com"
@@ -18,6 +19,6 @@
         }
     },
     "archive": {
-        "exclude": [".git*", "phpunit.xml", ".travis.yml", "*.md", "*Test.php"]
+        "exclude": [".git*", "phpunit.xml", "*.md", "*Test.php"]
     }
 }
