@@ -35,36 +35,35 @@ class NetworkScannerTest extends PhpUnitTestCase {
     }
 
     /**
-     * @test
+     * @return array
      */
-    public function normalise_mac_address_to_have_dash(){
-        $test_mac_address = self::$faker->macAddress;
-        $faked_mac_address_separator = substr($test_mac_address, 2, 1);
-
-        $scanner = new TNS();
-        $normalised_mac_address = $scanner->normalise_mac_address($test_mac_address, TNS::PHYSICAL_ADDRESS_SEPARATOR_DASH);
-
-        $this->assertContains(TNS::PHYSICAL_ADDRESS_SEPARATOR_DASH, $normalised_mac_address);
-        $this->assertEquals(
-            str_replace($faked_mac_address_separator, TNS::PHYSICAL_ADDRESS_SEPARATOR_DASH, $test_mac_address),
-            $normalised_mac_address
+    public function providerNormalisePhysicalAddressToHave(){
+        return array(
+            'dash'=>[TNS::PHYSICAL_ADDRESS_SEPARATOR_DASH],
+            'colon'=>[TNS::PHYSICAL_ADDRESS_SEPARATOR_COLON],
+            'no-separator'=>[TNS::PHYSICAL_ADDRESS_SEPARATOR_NA]
         );
     }
 
     /**
      * @test
+     * @dataProvider providerNormalisePhysicalAddressToHave
+     *
+     * @param string $new_separator
      */
-    public function normalise_mac_address_to_have_no_separator(){
+    public function normalisePhysicalAddressToHave($new_separator){
         $test_mac_address = self::$faker->macAddress;
         $faked_mac_address_separator = substr($test_mac_address, 2, 1);
 
         $scanner = new TNS();
-        $normalised_mac_address = $scanner->normalise_mac_address($test_mac_address, TNS::PHYSICAL_ADDRESS_SEPARATOR_NA);
+        $normalised_mac_address = $scanner->normalise_physical_address($test_mac_address, $new_separator);
 
-        $this->assertNotContains(TNS::PHYSICAL_ADDRESS_SEPARATOR_COLON, $normalised_mac_address);
-        $this->assertNotContains(TNS::PHYSICAL_ADDRESS_SEPARATOR_DASH, $normalised_mac_address);
+        if($new_separator !== TNS::PHYSICAL_ADDRESS_SEPARATOR_NA){
+            // only care about this assert if there is a separator
+            $this->assertContains($new_separator, $normalised_mac_address);
+        }
         $this->assertEquals(
-            str_replace($faked_mac_address_separator, TNS::PHYSICAL_ADDRESS_SEPARATOR_NA, $test_mac_address),
+            str_replace($faked_mac_address_separator, $new_separator, $test_mac_address),
             $normalised_mac_address
         );
     }
@@ -91,6 +90,10 @@ class NetworkScannerTest extends PhpUnitTestCase {
         $this->assertFalse($valid_mac);
     }
 
+    /**
+     * @test
+     * @throws \Exception
+     */
     public function failed_command_for_is_mac_address_on_network(){
         $mac_address = self::$faker->macAddress;
 
@@ -101,12 +104,30 @@ class NetworkScannerTest extends PhpUnitTestCase {
         $this->assertFalse($on_network);
     }
 
-    public function mac_address_on_network_with_windows_os_check(){
+    /**
+     * @return array
+     */
+    public function providerMacAddressOnNetworkWithSpecifiedOsCheck(){
+        return array(
+            'Windows'=>[TNS::OS_WINDOWS],
+            'BSD'=>[TNS::OS_BSD],
+            'Unix'=>[TNS::OS_UNIX]
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider providerMacAddressOnNetworkWithSpecifiedOsCheck
+     *
+     * @param string $os_const
+     * @throws \Exception
+     */
+    public function macAddressOnNetworkWithSpecifiedOsCheck($os_const){
         $mac_address = self::$faker->macAddress;
         $ip_address = self::$faker->ipv4;
 
         $scanner = new TNS();
-        $scanner->set_detectable_os(TNS::OS_WINDOWS);
+        $scanner->set_detectable_os($os_const);
         $scanner->add_mac_address_to_response($ip_address, $mac_address);
 
         $on_network = $scanner->is_mac_address_on_network($mac_address);
@@ -114,35 +135,29 @@ class NetworkScannerTest extends PhpUnitTestCase {
         $this->assertEquals($ip_address, $on_network);
     }
 
-    public function mac_address_not_on_network_with_windows_os_check(){
-        $mac_address = self::$faker->macAddress;
-
-        $scanner = new TNS();
-        $scanner->set_detectable_os(TNS::OS_WINDOWS);
-        $scanner->add_mac_address_to_response(self::$faker->ipv4, self::$faker->macAddress);
-
-        $on_network = $scanner->is_mac_address_on_network($mac_address);
-        $this->assertFalse($on_network);
+    /**
+     * @return array
+     */
+    public function providerMacAddressNotOnNetworkWithSpecifiedOsCheck(){
+        return [
+            'Windows'=>[TNS::OS_WINDOWS],
+            'BSD'=>[TNS::OS_BSD],
+            'Unix'=>[TNS::OS_UNIX]
+        ];
     }
 
-    public function mac_address_on_network_with_linux_os_check(){
-        $mac_address = self::$faker->macAddress;
-        $ip_address = self::$faker->ipv4;
-
-        $scanner = new TNS();
-        $scanner->set_detectable_os(TNS::OS_LINUX);
-        $scanner->add_mac_address_to_response($ip_address, $mac_address);
-
-        $on_network = $scanner->is_mac_address_on_network($mac_address);
-        $this->assertNotFalse($on_network);
-        $this->assertEquals($ip_address, $on_network);
-    }
-
-    public function mac_address_not_on_network_with_linux_os_check(){
+    /**
+     * @test
+     * @dataProvider providerMacAddressNotOnNetworkWithSpecifiedOsCheck
+     *
+     * @param string $os_const
+     * @throws \Exception
+     */
+    public function macAddressNotOnNetworkWithSpecifiedOsCheck($os_const){
         $mac_address = self::$faker->macAddress;
 
         $scanner = new TNS();
-        $scanner->set_detectable_os(TNS::OS_LINUX);
+        $scanner->set_detectable_os($os_const);
         $scanner->add_mac_address_to_response(self::$faker->ipv4, self::$faker->macAddress);
 
         $on_network = $scanner->is_mac_address_on_network($mac_address);
