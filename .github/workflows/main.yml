@@ -41,12 +41,6 @@ jobs:
         with:
           php_version: ${{ matrix.php }}
 
-      - name: static analysis
-        uses: php-actions/phpstan@v3
-        with:
-          php_version: ${{ matrix.php }}
-          path: src
-
       - name: run tests
         uses: php-actions/phpunit@v3
         with:
